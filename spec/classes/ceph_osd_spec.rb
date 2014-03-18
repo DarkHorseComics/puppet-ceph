@@ -9,6 +9,7 @@ describe "ceph::osd" do
   it { should include_class('ceph::package') }
 
   it { should contain_package('xfsprogs') }
+  it { should contain_package('btrfs-tools') }
   it { should contain_package('parted') }
 
 end
