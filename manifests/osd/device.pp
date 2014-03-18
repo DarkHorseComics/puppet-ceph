@@ -35,7 +35,7 @@ define ceph::osd::device (
   $fs_type = 'xfs',
   $cluster_name,
   $cluster_uuid,
-  $journal_path,
+  $journal_path = undef,
 ) {
 
   include ceph::osd
