@@ -44,12 +44,12 @@ define ceph::osd::device (
 
   exec { "ceph_prepare_${name}":
     command => "ceph-disk prepare --cluster ${cluster_name} --cluster-uuid ${cluster_uuid} --fs-type ${fs_type} --zap-disk ${name} ${journal_path}",
-    unless  => "ceph-disk list | grep ${name}\d? ceph data, prepared",
+    unless  => "ceph-disk list | grep -E \"${name}[0-9]+ ceph data, prepared\"",
     require => Package['btrfs-tools', 'xfsprogs'],
   } ->
   exec { "ceph_activate_${name}":
     command => "ceph-disk activate ${name}",
-    unless  =>  "ceph-disk list | grep ${name}\d? ceph data, prepared",
+    unless  => "ceph-disk list | grep -E \"${name}[0-9]+ ceph data, prepared\"",
   }
 
 }
