@@ -87,11 +87,11 @@ define ceph::mon (
 
   # Create admin key seperately
   exec { 'ceph-admin-key':
-    command     => "$(ceph --name mon. --keyring ${mon_data_real}/keyring \
+    command     => "ceph --name mon. --keyring ${mon_data_real}/keyring \
     auth get-or-create-key client.admin \
     mon 'allow *' \
     osd 'allow *' \
-    mds allow)",
+    mds allow",
     refreshonly => true,
   }
 
