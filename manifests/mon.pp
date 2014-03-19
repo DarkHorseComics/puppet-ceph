@@ -74,7 +74,7 @@ define ceph::mon (
     command => "ceph-authtool /var/lib/ceph/tmp/keyring.mon.${name} \
     --import-keyring /etc/ceph/ceph.client.admin.keyring",
     refreshonly => true,
-    require => File['/etc/ceph/ceph.client.admin.keyring',"/var/lib/ceph/tmp/keyring.mon.${name}"],
+    require => Exec['ceph-client-admin-keyring','ceph-mon-keyring'],
   }
 
   exec { 'ceph-mon-mkfs':
