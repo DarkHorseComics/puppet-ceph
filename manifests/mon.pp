@@ -99,7 +99,7 @@ define ceph::mon (
     command => "ceph-authtool /etc/ceph/keyring \
 --create-keyring \
 --name=client.admin \
---add-key ${mon_data_real}/keyring",
+--import-keyring ${mon_data_real}/keyring",
     creates => '/etc/ceph/keyring',
     require => [Package['ceph'], Exec['ceph-admin-key']],
     onlyif  => "ceph --admin-daemon /var/run/ceph/ceph-mon.${name}.asok \
