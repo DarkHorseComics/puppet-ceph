@@ -58,7 +58,7 @@ define ceph::mon (
 
   exec { 'ceph-mon-mkfs':
     command => "ceph-mon --mkfs -i ${name} \
---keyring /var/lib/ceph/tmp/keyring.mon.${name} --monmap /tmp/monmap",
+--keyring /var/lib/ceph/tmp/keyring.mon.${name}",
     creates => "${mon_data_real}/keyring",
     notify  => Exec['ceph-admin-key'],
     require => [
