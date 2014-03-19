@@ -56,11 +56,31 @@ define ceph::mon (
     require => Package['ceph'],
   }
 
+  exec { 'ceph-client-admin-keyring':
+    command => "ceph-authtool --create-keyring /etc/ceph/ceph.client.admin.keyring \
+--gen-key \
+--name=client.admin \
+--set-uid=0 \
+--cap mon 'allow *' \
+--cap osd 'allow *' \
+--cap mds 'allow'",
+    creates => "/etc/ceph/ceph.client.admin.keyring",
+    notify  => Exec['ceph-combine-keyrings'],
+    before  => Exec['ceph-mon-mkfs'],
+    require => Package['ceph'],
+  }
+
+  exec { 'ceph-combine-keyrings':
+    command => "ceph-authtool /var/lib/ceph/tmp/keyring.mon.${name} \
+    --import-keyring /etc/ceph/ceph.client.admin.keyring",
+    refreshonly => true,
+    require => File['/etc/ceph/ceph.client.admin.keyring',"/var/lib/ceph/tmp/keyring.mon.${name}"],
+  }
+
   exec { 'ceph-mon-mkfs':
     command => "ceph-mon --mkfs -i ${name} \
 --keyring /var/lib/ceph/tmp/keyring.mon.${name}",
     creates => "${mon_data_real}/keyring",
-    notify  => Exec['ceph-admin-key'],
     require => [
       Package['ceph'],
       Concat['/etc/ceph/ceph.conf'],
@@ -86,24 +106,16 @@ define ceph::mon (
   }
 
   # Create admin key seperately
-  exec { 'ceph-admin-key':
-    command     => "ceph --name mon. --keyring ${mon_data_real}/keyring \
-    auth get-or-create-key client.admin \
-    mon 'allow *' \
-    osd 'allow *' \
-    mds allow",
-    refreshonly => true,
-  }
 
-  exec { 'ceph-import-admin-key':
-    command => "ceph-authtool /etc/ceph/keyring \
---create-keyring \
---name=client.admin \
---import-keyring ${mon_data_real}/keyring",
-    creates => '/etc/ceph/keyring',
-    require => [Package['ceph'], Exec['ceph-admin-key']],
-    onlyif  => "ceph --admin-daemon /var/run/ceph/ceph-mon.${name}.asok \
-mon_status|egrep -v '\"state\": \"(leader|peon)\"'",
-  }
+#  exec { 'ceph-import-admin-key':
+#    command => "ceph-authtool /etc/ceph/keyring \
+#--create-keyring \
+#--name=client.admin \
+#--import-keyring ${mon_data_real}/keyring",
+#    creates => '/etc/ceph/keyring',
+#    require => Package['ceph'],
+#    onlyif  => "ceph --admin-daemon /var/run/ceph/ceph-mon.${name}.asok \
+#mon_status|egrep -v '\"state\": \"(leader|peon)\"'",
+#  }
 
 }
