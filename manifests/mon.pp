@@ -58,12 +58,13 @@ define ceph::mon (
 
   exec { 'ceph-mon-mkfs':
     command => "ceph-mon --mkfs -i ${name} \
---keyring /var/lib/ceph/tmp/keyring.mon.${name}",
+--keyring /var/lib/ceph/tmp/keyring.mon.${name} --monmap /tmp/monmap",
     creates => "${mon_data_real}/keyring",
+    notify  => Exec['ceph-admin-key'],
     require => [
       Package['ceph'],
       Concat['/etc/ceph/ceph.conf'],
-      File[$mon_data_real]
+      File[$mon_data_real],
     ],
   }
 
@@ -84,18 +85,23 @@ define ceph::mon (
     require  => Exec['ceph-mon-mkfs'],
   }
 
+  # Create admin key seperately
   exec { 'ceph-admin-key':
-    command => "ceph-authtool /etc/ceph/keyring \
---create-keyring \
---name=client.admin \
---add-key \
-$(ceph --name mon. --keyring ${mon_data_real}/keyring \
-  auth get-or-create-key client.admin \
+    command     => "$(ceph --name mon. --keyring ${mon_data_real}/keyring \
+    auth get-or-create-key client.admin \
     mon 'allow *' \
     osd 'allow *' \
     mds allow)",
+    refreshonly => true,
+  }
+
+  exec { 'ceph-import-admin-key':
+    command => "ceph-authtool /etc/ceph/keyring \
+--create-keyring \
+--name=client.admin \
+--add-key ${mon_data_real}/keyring",
     creates => '/etc/ceph/keyring',
-    require => Package['ceph'],
+    require => [Package['ceph'], Exec['ceph-admin-key']],
     onlyif  => "ceph --admin-daemon /var/run/ceph/ceph-mon.${name}.asok \
 mon_status|egrep -v '\"state\": \"(leader|peon)\"'",
   }
