@@ -42,8 +42,16 @@ define ceph::osd::device (
   include ceph::conf
   include ceph::params
 
+  if $cluster_name {
+    $cluster_name_option = "--cluster ${cluster_name}"
+  }
+
+  if $cluster_uuid {
+    $cluster_uuid_option = "--cluster-uuid ${cluster_uuid}"
+  }
+
   exec { "ceph_prepare_${name}":
-    command => "ceph-disk prepare --cluster ${cluster_name} --cluster-uuid ${cluster_uuid} --fs-type ${fs_type} --zap-disk ${name} ${journal_path}",
+    command => "ceph-disk prepare ${cluster_name_option} ${cluster_uuid_option} --fs-type ${fs_type} --zap-disk ${name} ${journal_path}",
     unless  => "ceph-disk list | grep -E \"${name}[0-9]+ ceph data, prepared\"",
     require => Package['btrfs-tools', 'xfsprogs'],
   } ->
