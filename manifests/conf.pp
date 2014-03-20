@@ -23,6 +23,7 @@
 class ceph::conf (
   $fsid,
   $auth_type               = 'cephx',
+  $keyring                 = '/etc/ceph/keyring',
   $signatures_require      = undef,
   $signatures_cluster      = undef,
   $signatures_service      = undef,
