@@ -6,7 +6,7 @@
 #   Key string to use for auth key
 #
 # [*permisisons*]
-#   Permissions granted to the key
+#   Array of permissions granted to the key
 #
 # [*keyring_path*]
 #   Location of key
@@ -18,7 +18,7 @@ define ceph::key (
 ) {
 
   if $permissions {
-    $permission_option = "--cap ${permissions}"
+    $permission_option = join(prefix($permissions, "--cap "), ' ')
   }
 
   exec { "ceph-key-${name}":
