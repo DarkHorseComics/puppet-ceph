@@ -64,7 +64,7 @@ define ceph::osd::device (
     require => Package['btrfs-tools', 'xfsprogs','ceph'],
   } ->
   exec { "ceph_activate_${name}":
-    command => "ceph-disk activate ${name} ${bootstrap_key_option}",
+    command => "ceph-disk activate ${name}1 ${bootstrap_key_option}",
     unless  => "ceph-disk list | grep -E \"${name}[0-9]+ ceph data, prepared.*osd\.\"",
   }
 
