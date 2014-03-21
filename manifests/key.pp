@@ -18,7 +18,7 @@ define ceph::key (
 ) {
 
   if $permissions {
-    $permission_option = join(prefix($permissions, "--cap "), ' ')
+    $permissions_option = join(prefix($permissions, "--cap "), ' ')
   }
 
   exec { "ceph-key-${name}":
