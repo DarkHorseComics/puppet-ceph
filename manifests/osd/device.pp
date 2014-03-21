@@ -61,11 +61,11 @@ define ceph::osd::device (
   exec { "ceph_prepare_${name}":
     command => "ceph-disk prepare ${cluster_name_option} ${cluster_uuid_option} --fs-type ${fs_type} --zap-disk ${name} ${journal_path}",
     unless  => "ceph-disk list | grep -E \"${name}[0-9]+ ceph data, prepared\"",
-    require => Package['btrfs-tools', 'xfsprogs'],
+    require => Package['btrfs-tools', 'xfsprogs','ceph'],
   } ->
   exec { "ceph_activate_${name}":
     command => "ceph-disk activate ${name} ${bootstrap_key_option}",
-    unless  => "ceph-disk list | grep -E \"${name}[0-9]+ ceph data, prepared\"",
+    unless  => "ceph-disk list | grep -E \"${name}[0-9]+ ceph data, prepared.*osd\.\"",
   }
 
 }
