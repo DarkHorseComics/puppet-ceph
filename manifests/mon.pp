@@ -39,6 +39,9 @@ define ceph::mon (
 
   $mon_data_real = regsubst($::ceph::conf::mon_data, '\$id', $name)
 
+  ## collect the admin and bootstrap keys
+  Package['ceph'] -> Ceph::Key <<| title == 'admin' or title == 'bootstrap-osd' |>>
+
   ceph::conf::mon { $name:
     mon_addr => $mon_addr,
     mon_port => $mon_port,

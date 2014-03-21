@@ -27,5 +27,5 @@ class ceph::osd (
 
   ensure_packages( [ 'xfsprogs', 'parted', 'btrfs-tools' ] )
 
-  Package['ceph'] -> Ceph::Key <<| title == 'admin' |>>
+  Package['ceph'] -> Ceph::Key <<| title == 'admin' or title == 'bootstrap-osd' |>>
 }
